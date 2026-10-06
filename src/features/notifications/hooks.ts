@@ -9,7 +9,7 @@ export function usePushState() {
   return [state, setState] as const
 }
 
-export type AppNotification = { id: string; kind: string; recipe_id: string | null; title: string | null; body: string | null; read_at: string | null; created_at: string }
+export type AppNotification = { id: string; kind: string; recipe_id: string | null; event_id: string | null; title: string | null; body: string | null; read_at: string | null; created_at: string }
 
 export function useNotifications() {
   return useQuery({
@@ -17,7 +17,7 @@ export function useNotifications() {
     refetchInterval: 60_000,
     refetchOnWindowFocus: true,
     queryFn: async () => {
-      const { data, error } = await supabase.from('notifications').select('id,kind,recipe_id,title,body,read_at,created_at').order('created_at', { ascending: false }).limit(60)
+      const { data, error } = await supabase.from('notifications').select('id,kind,recipe_id,event_id,title,body,read_at,created_at').order('created_at', { ascending: false }).limit(60)
       if (error) throw error
       return data as AppNotification[]
     },

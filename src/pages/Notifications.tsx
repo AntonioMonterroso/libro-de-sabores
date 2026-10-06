@@ -33,7 +33,7 @@ export function Notifications() {
         <ul className="mt-8 grid gap-3">
           {data.map((n) => (
             <li key={n.id}>
-              <Link to={n.recipe_id ? `/receta/${n.recipe_id}` : '/'} className={`flex items-start gap-3 rounded-[22px] border p-4 transition-transform duration-150 active:scale-[0.985] ${n.read_at ? 'border-hairline bg-white/60' : 'border-champagne/60 bg-rose/40'}`}>
+              <Link to={n.event_id ? `/evento/${n.event_id}` : n.recipe_id ? `/receta/${n.recipe_id}` : '/'} className={`flex items-start gap-3 rounded-[22px] border p-4 transition-transform duration-150 active:scale-[0.985] ${n.read_at ? 'border-hairline bg-white/60' : 'border-champagne/60 bg-rose/40'}`}>
                 {!n.read_at && <span className="mt-2 size-2 shrink-0 rounded-full bg-champagne" aria-label="Sin leer" />}
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{n.title}</p>

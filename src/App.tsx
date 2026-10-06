@@ -14,12 +14,16 @@ import { Favorites } from './pages/Favorites'
 import { Settings } from './pages/Settings'
 import { Notifications } from './pages/Notifications'
 import { Admin } from './pages/Admin'
+import { Events } from './pages/Events'
+import { EventForm } from './pages/EventForm'
+import { EventPage } from './pages/EventPage'
 import { TabBar } from './components/TabBar'
 import { TimerDock } from './features/timers/TimerDock'
 
 const Demo = import.meta.env.DEV ? lazy(() => import('./dev/DemoRecipe')) : null
 const DemoExplore = import.meta.env.DEV ? lazy(() => import('./dev/DemoExplore')) : null
 const DemoInstall = import.meta.env.DEV ? lazy(() => import('./dev/DemoInstall')) : null
+const DemoEvents = import.meta.env.DEV ? lazy(() => import('./dev/DemoEvents')) : null
 const DemoCook = import.meta.env.DEV ? lazy(() => import('./dev/DemoCooking')) : null
 
 function Gate() {
@@ -27,6 +31,7 @@ function Gate() {
   if (Demo && location.hash === '#/demo') return <Suspense fallback={null}><Demo /></Suspense>
   if (DemoExplore && location.hash === '#/demo-explorar') return <Suspense fallback={null}><DemoExplore /></Suspense>
   if (DemoInstall && location.hash === '#/demo-instalar') return <Suspense fallback={null}><DemoInstall /></Suspense>
+  if (DemoEvents && location.hash.startsWith('#/demo-ev')) return <Suspense fallback={null}><DemoEvents view={location.hash === '#/demo-evento' ? 'event' : location.hash === '#/demo-evform' ? 'form' : 'list'} /></Suspense>
   if (DemoCook && location.hash === '#/demo-cocina') return <Suspense fallback={null}><DemoCook /><TimerDock /></Suspense>
   if (loading) return <div className="grid min-h-dvh place-items-center text-cocoa-soft">Cargando…</div>
   if (!session) return <LoginScreen />
@@ -47,6 +52,10 @@ function Gate() {
       <Route path="/ajustes" element={<Settings />} />
       <Route path="/avisos" element={<Notifications />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/eventos" element={<Events />} />
+      <Route path="/eventos/nuevo" element={<EventForm />} />
+      <Route path="/evento/:id" element={<EventPage />} />
+      <Route path="/evento/:id/editar" element={<EventForm />} />
       <Route path="*" element={<Home />} />
     </Routes>
     <TabBar />

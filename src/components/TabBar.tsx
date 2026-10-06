@@ -1,16 +1,17 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Compass, Heart, Home, Users } from 'lucide-react'
+import { CalendarDays, Compass, Heart, Home, Users } from 'lucide-react'
 
 const TABS = [
   { to: '/', label: 'Inicio', Icon: Home, end: true },
   { to: '/explorar', label: 'Explorar', Icon: Compass },
+  { to: '/eventos', label: 'Eventos', Icon: CalendarDays },
   { to: '/cocineros', label: 'Cocineros', Icon: Users },
   { to: '/favoritas', label: 'Favoritas', Icon: Heart },
 ]
 
 export function TabBar() {
   const { pathname } = useLocation()
-  const visible = pathname === '/' || ['/explorar', '/cocineros', '/cocinero', '/favoritas', '/ajustes', '/avisos'].some((p) => pathname.startsWith(p))
+  const visible = pathname === '/' || ['/explorar', '/cocineros', '/cocinero', '/favoritas', '/ajustes', '/avisos', '/eventos'].some((p) => pathname.startsWith(p)) && !pathname.startsWith('/eventos/nuevo') && !/^\/evento\/[^/]+\/editar/.test(pathname)
   if (!visible) return null
   return (
     <nav aria-label="Principal" className="fixed inset-x-0 bottom-0 z-30 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
