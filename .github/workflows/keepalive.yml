@@ -1,0 +1,18 @@
+name: Mantener Supabase despierto
+
+# El plan gratis pausa el proyecto tras 7 días sin actividad. Esto lo consulta cada 3 días.
+on:
+  schedule:
+    - cron: '17 9 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar la API
+        run: |
+          curl -fsS "${{ vars.VITE_SUPABASE_URL }}/rest/v1/categories?select=id&limit=1" \
+            -H "apikey: ${{ vars.VITE_SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ vars.VITE_SUPABASE_ANON_KEY }}" -o /dev/null
+          echo "Supabase respondió."
