@@ -8,11 +8,13 @@ import { Row, Section } from '../components/ui/layout'
 import { InstallGuide } from '../features/notifications/InstallGuide'
 import { usePushState } from '../features/notifications/hooks'
 import { disablePush, enablePush, sendTestNotification } from '../features/notifications/push'
+import { useMusic } from '../features/music/MusicProvider'
 import { isStandalone } from '../lib/platform'
 
 export function Settings() {
   const nav = useNavigate()
   const { profile, session, signOut } = useAuth()
+  const music = useMusic()
   const [state, setState] = usePushState()
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
@@ -71,6 +73,16 @@ export function Settings() {
           {state === 'dev' && <p className="rounded-[22px] bg-pearl px-5 py-4 text-cocoa-soft">Los avisos solo funcionan en la versión publicada, no en desarrollo.</p>}
           {err && <p role="alert" className="px-4 text-sm text-[#9B3B3B]">{err}</p>}
         </section>
+
+        {music.configured && (
+          <Section title="Música" footer="Con Spotify Premium puedes poner música mientras cocinas, desde el modo cocina.">
+            {music.linked ? (
+              <div className="flex items-center justify-between gap-3 px-4 py-3"><span>Spotify vinculado{music.premium === false ? ' (sin Premium)' : ''}</span><button type="button" onClick={music.unlinkAccount} className="min-h-11 px-2 text-sm text-[#9B3B3B]">Desvincular</button></div>
+            ) : (
+              <div className="p-3"><Button onClick={() => void music.link()}>Vincular Spotify</Button></div>
+            )}
+          </Section>
+        )}
 
         {!isStandalone() && <InstallGuide />}
 

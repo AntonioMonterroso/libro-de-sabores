@@ -1,5 +1,12 @@
 let ctx: AudioContext | null = null
 let loop: number | null = null
+const listeners = new Set<(ringing: boolean) => void>()
+
+/** Permite que otros (p. ej. la música) reaccionen cuando suena o se apaga la alarma. */
+export function onAlarm(cb: (ringing: boolean) => void) {
+  listeners.add(cb)
+  return () => { listeners.delete(cb) }
+}
 
 /** Debe llamarse desde un gesto del usuario (p. ej. al iniciar un temporizador) para desbloquear el audio. */
 export function unlockAudio() {
@@ -36,12 +43,13 @@ function chime() {
 
 export function startAlarm() {
   if (loop != null) return
+  listeners.forEach((l) => l(true))
   chime()
   loop = window.setInterval(chime, 2600)
 }
 
 export function stopAlarm() {
-  if (loop != null) clearInterval(loop)
+  if (loop != null) { clearInterval(loop); listeners.forEach((l) => l(false)) }
   loop = null
 }
 
