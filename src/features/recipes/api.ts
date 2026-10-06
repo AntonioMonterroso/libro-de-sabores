@@ -166,7 +166,7 @@ export function useProfiles() {
     queryKey: ['profiles'],
     staleTime: 5 * 60_000,
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('id,display_name,avatar_url,bio,branch').order('display_name')
+      const { data, error } = await supabase.from('profiles').select('id,display_name,avatar_url,bio,branch').eq('active', true).order('display_name')
       if (error) throw error
       return data as CookProfile[]
     },

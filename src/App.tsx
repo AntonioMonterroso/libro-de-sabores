@@ -13,6 +13,7 @@ import { Cooks, CookProfilePage } from './pages/Cooks'
 import { Favorites } from './pages/Favorites'
 import { Settings } from './pages/Settings'
 import { Notifications } from './pages/Notifications'
+import { Admin } from './pages/Admin'
 import { TabBar } from './components/TabBar'
 import { TimerDock } from './features/timers/TimerDock'
 
@@ -45,6 +46,7 @@ function Gate() {
       <Route path="/favoritas" element={<Favorites />} />
       <Route path="/ajustes" element={<Settings />} />
       <Route path="/avisos" element={<Notifications />} />
+      <Route path="/admin" element={<Admin />} />
       <Route path="*" element={<Home />} />
     </Routes>
     <TabBar />

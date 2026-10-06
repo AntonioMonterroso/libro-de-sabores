@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { useAuth } from '../features/auth/AuthProvider'
 import { Avatar } from '../components/ui/Avatar'
@@ -43,6 +43,12 @@ export function Settings() {
             <div><p className="font-display text-2xl leading-tight">{profile?.display_name}</p><p className="text-sm text-cocoa-soft">{profile?.role === 'admin' ? 'Administrador' : 'Miembro de la familia'}</p></div>
           </div>
         </Section>
+
+        {profile?.role === 'admin' && (
+          <Section>
+            <Link to="/admin" className="flex min-h-14 items-center justify-between px-4"><span>Administración: invitaciones y miembros</span><span className="text-cocoa-soft">›</span></Link>
+          </Section>
+        )}
 
         <section className="grid gap-3">
           <h2 className="px-4 text-xs font-medium uppercase tracking-wider text-cocoa-soft">Notificaciones</h2>

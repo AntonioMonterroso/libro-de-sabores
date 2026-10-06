@@ -7,6 +7,8 @@ import { ChefHat } from '../../components/brand/ChefHat'
 import { Avatar } from '../../components/ui/Avatar'
 import { Stepper } from '../../components/ui/layout'
 import { displayAmount, scaleAmount } from '../../lib/scale'
+import { useQueryClient } from '@tanstack/react-query'
+import { supabase } from '../../lib/supabase'
 import { useCategories, useSignedUrl } from './api'
 import { useFavorite } from './favorites'
 import { KIND_LABEL, type IngredientKind, type ScaleMode } from './types'
@@ -38,7 +40,9 @@ const TIP_NAME = { consejo: 'Consejo', truco: 'Truco', sustitucion: 'Sustitució
 
 export function RecipeView({ r }: { r: any }) {
   const nav = useNavigate()
-  const { session } = useAuth()
+  const { session, profile } = useAuth()
+  const qc = useQueryClient()
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const img = useSignedUrl(r.cover_url)
   const { data: cats = [] } = useCategories()
   const fav = useFavorite(r.id)
@@ -63,6 +67,13 @@ export function RecipeView({ r }: { r: any }) {
   const myCats = cats.filter((c) => (r.recipe_categories ?? []).some((rc: any) => rc.category_id === c.id))
   const total = (r.prep_min ?? 0) + (r.cook_min ?? 0) + (r.rest_min ?? 0)
   const amount = (i: any) => displayAmount(scaleAmount(i.quantity, factor, i.scale_mode as ScaleMode), i.unit, i.scale_mode as ScaleMode)
+
+  async function remove() {
+    const { error } = await supabase.from('recipes').delete().eq('id', r.id)
+    if (error) return
+    await qc.invalidateQueries({ queryKey: ['recipes'] })
+    nav('/', { replace: true })
+  }
 
   async function share() {
     const url = location.href
@@ -260,6 +271,20 @@ export function RecipeView({ r }: { r: any }) {
         )}
 
         {r.storage_note && <Reveal className="mt-10"><p className="rounded-2xl border border-hairline bg-white/60 px-5 py-4 text-cocoa-soft"><span className="font-medium text-cocoa">Conservación. </span>{r.storage_note}</p></Reveal>}
+        {(mine || profile?.role === 'admin') && (
+          <div className="mt-14 border-t border-hairline pt-6">
+            {confirmDelete ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-cocoa-soft">Se borra para toda la familia y no se puede deshacer.</p>
+                <button type="button" onClick={remove} className="min-h-11 rounded-full bg-[#9B3B3B] px-5 font-medium text-white">Sí, eliminar</button>
+                <button type="button" onClick={() => setConfirmDelete(false)} className="min-h-11 px-3 text-cocoa-soft">Cancelar</button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setConfirmDelete(true)} className="min-h-11 text-sm text-[#9B3B3B]">Eliminar receta</button>
+            )}
+          </div>
+        )}
+
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
