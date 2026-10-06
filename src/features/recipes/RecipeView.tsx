@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { AlertTriangle, Check, ChevronLeft, Clock, Droplets, Flame, Heart, Lightbulb, Pencil, Repeat, Share2, Thermometer, Timer, Wrench } from 'lucide-react'
+import { AlertTriangle, Check, ChevronLeft, Clock, Droplets, Flame, Heart, Lightbulb, Pencil, Printer, Repeat, Share2, Thermometer, Timer, Wrench } from 'lucide-react'
 import { useAuth } from '../auth/AuthProvider'
 import { ChefHat } from '../../components/brand/ChefHat'
 import { Avatar } from '../../components/ui/Avatar'
@@ -11,6 +11,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useCategories, useSignedUrl } from './api'
 import { useFavorite } from './favorites'
+import { Comments, CookLogs } from './Social'
 import { KIND_LABEL, type IngredientKind, type ScaleMode } from './types'
 
 const ease = [0.23, 1, 0.32, 1] as const
@@ -79,7 +80,7 @@ export function RecipeView({ r }: { r: any }) {
     const url = location.href
     try {
       if (navigator.share) await navigator.share({ title: r.title, text: `Mira esta receta: ${r.title}`, url })
-      else await navigator.clipboard.writeText(url)
+      else window.open(`https://wa.me/?text=${encodeURIComponent(`${r.title}: ${url}`)}`, '_blank', 'noopener')
     } catch { /* cancelado */ }
   }
 
@@ -108,6 +109,7 @@ export function RecipeView({ r }: { r: any }) {
         </div>
         <button type="button" onClick={() => nav('/')} aria-label="Volver" className="absolute left-4 top-[max(1rem,env(safe-area-inset-top))] grid size-11 place-items-center rounded-full bg-ivory/85 shadow-soft backdrop-blur-md transition-transform duration-150 active:scale-[0.94]"><ChevronLeft size={22} /></button>
         <div className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] flex gap-2">
+          <button type="button" onClick={() => window.print()} aria-label="Imprimir" className="grid size-11 place-items-center rounded-full bg-ivory/85 shadow-soft backdrop-blur-md transition-transform duration-150 active:scale-[0.94] print:hidden"><Printer size={19} /></button>
           <button type="button" onClick={share} aria-label="Compartir" className="grid size-11 place-items-center rounded-full bg-ivory/85 shadow-soft backdrop-blur-md transition-transform duration-150 active:scale-[0.94]"><Share2 size={19} /></button>
           {mine && <Link to={`/editar/${r.id}`} aria-label="Editar" className="grid size-11 place-items-center rounded-full bg-ivory/85 shadow-soft backdrop-blur-md transition-transform duration-150 active:scale-[0.94]"><Pencil size={19} /></Link>}
         </div>
@@ -145,7 +147,7 @@ export function RecipeView({ r }: { r: any }) {
           </Reveal>
         )}
 
-        <div className="sticky top-0 z-10 -mx-5 mt-10 border-b border-hairline/70 bg-ivory/90 px-5 py-3 backdrop-blur-md">
+        <div className="sticky top-0 z-10 -mx-5 mt-10 print:static border-b border-hairline/70 bg-ivory/90 px-5 py-3 backdrop-blur-md">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wider text-cocoa-soft">Cocinar para</p>
@@ -271,6 +273,8 @@ export function RecipeView({ r }: { r: any }) {
         )}
 
         {r.storage_note && <Reveal className="mt-10"><p className="rounded-2xl border border-hairline bg-white/60 px-5 py-4 text-cocoa-soft"><span className="font-medium text-cocoa">Conservación. </span>{r.storage_note}</p></Reveal>}
+        {r.status === 'published' && <><CookLogs recipeId={r.id} /><Comments recipeId={r.id} /></>}
+
         {(mine || profile?.role === 'admin') && (
           <div className="mt-14 border-t border-hairline pt-6">
             {confirmDelete ? (
@@ -287,7 +291,7 @@ export function RecipeView({ r }: { r: any }) {
 
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div className="fixed inset-x-0 bottom-0 z-20 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] print:hidden">
         <div className="mx-auto flex max-w-md items-center justify-center gap-2 rounded-full border border-hairline bg-ivory/90 p-1.5 shadow-soft backdrop-blur-md">
           <button type="button" onClick={fav.toggle} aria-pressed={fav.active} className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full px-5 font-medium transition-[background-color,transform] duration-150 active:scale-[0.97]">
             <Heart size={19} className={fav.active ? 'fill-[#C98B8B] text-[#C98B8B]' : ''} />{fav.active ? 'En favoritas' : 'Guardar'}

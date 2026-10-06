@@ -76,3 +76,10 @@ button:active { transform: scale(0.97); }
 @media (hover: hover) and (pointer: fine) { .cat-tile:hover .cat-icon { animation: var(--sig-h) 900ms var(--ease-out) 1 both; } }
 .cat-tile[aria-pressed="true"] .cat-icon { animation: var(--sig-h) 900ms var(--ease-out) 1 both; }
 @media (prefers-reduced-motion: reduce) { .cat-icon, .cat-tile:hover .cat-icon { animation: none; } }
+
+@media print {
+  body { background: #fff; padding: 0; }
+  button, a[aria-label] { break-inside: avoid; }
+  img { max-height: 9cm; object-fit: cover; }
+  .rise, [style*="opacity"] { opacity: 1 !important; transform: none !important; }
+}

@@ -3,15 +3,8 @@ import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { Bell } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { ago } from '../lib/time'
 import { useNotifications } from '../features/notifications/hooks'
-
-function ago(iso: string) {
-  const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
-  if (m < 1) return 'ahora'
-  if (m < 60) return `hace ${m} min`
-  if (m < 1440) return `hace ${Math.round(m / 60)} h`
-  return `hace ${Math.round(m / 1440)} d`
-}
 
 export function Notifications() {
   const { data = [], isLoading } = useNotifications()
