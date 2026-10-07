@@ -1,7 +1,7 @@
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { useAuth } from './features/auth/AuthProvider'
 import { LoginScreen } from './features/auth/LoginScreen'
-import { OnboardingScreen } from './features/auth/OnboardingScreen'
+import { NoAccessScreen } from './features/auth/NoAccessScreen'
 import { lazy, Suspense } from 'react'
 import { Home } from './pages/Home'
 import { RecipeWizard } from './features/recipes/RecipeWizard'
@@ -35,7 +35,7 @@ function Gate() {
   if (DemoCook && location.hash === '#/demo-cocina') return <Suspense fallback={null}><DemoCook /><TimerDock /></Suspense>
   if (loading) return <div className="grid min-h-dvh place-items-center text-cocoa-soft">Cargando…</div>
   if (!session) return <LoginScreen />
-  if (!profile) return <OnboardingScreen />
+  if (!profile) return <NoAccessScreen />
   return (
     <>
     <TimerDock />

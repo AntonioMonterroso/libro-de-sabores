@@ -1,25 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 
-export type Invite = { code: string; role: 'admin' | 'member'; max_uses: number; uses: number; expires_at: string | null; created_at: string }
 export type Member = { id: string; display_name: string; avatar_url: string | null; role: 'admin' | 'member'; active: boolean; created_at: string }
 
-const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'
 
-export function makeCode(prefix = 'FAM') {
-  const bytes = crypto.getRandomValues(new Uint8Array(8))
-  return `${prefix}-${[...bytes].map((b) => ALPHABET[b % ALPHABET.length]).join('')}`
-}
-
-export function useInvites() {
-  return useQuery({
-    queryKey: ['admin-invites'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('invites').select('*').order('created_at', { ascending: false })
-      if (error) throw error
-      return data as Invite[]
-    },
-  })
+/** Contraseña fácil de dictar por WhatsApp: Kzmh-4qWp-382 */
+export function generatePassword() {
+  const pick = (n: number, set = ALPHABET) => [...crypto.getRandomValues(new Uint8Array(n))].map((b) => set[b % set.length]).join('')
+  return `${pick(4)}-${pick(4)}-${pick(3, '23456789')}`
 }
 
 export function useMembers() {
@@ -33,23 +23,25 @@ export function useMembers() {
   })
 }
 
-export function useAdminActions(userId: string) {
+async function callAdmin(body: Record<string, unknown>) {
+  const { data, error } = await supabase.functions.invoke('admin-users', { body })
+  if (error) {
+    let msg = 'No se pudo completar. Inténtalo de nuevo.'
+    if (error instanceof FunctionsHttpError) msg = (await error.context.json().catch(() => null))?.error ?? msg
+    throw new Error(msg)
+  }
+  return data
+}
+
+export function useAdminActions() {
   const qc = useQueryClient()
-  const refresh = () => Promise.all([qc.invalidateQueries({ queryKey: ['admin-invites'] }), qc.invalidateQueries({ queryKey: ['admin-members'] }), qc.invalidateQueries({ queryKey: ['profiles'] })])
+  const refresh = () => Promise.all([qc.invalidateQueries({ queryKey: ['admin-members'] }), qc.invalidateQueries({ queryKey: ['profiles'] })])
   return {
-    createInvite: useMutation({
-      mutationFn: async (o: { role: 'admin' | 'member'; max_uses: number; days: number | null }) => {
-        const code = makeCode(o.role === 'admin' ? 'ADMIN' : 'FAM')
-        const { error } = await supabase.from('invites').insert({ code, role: o.role, max_uses: o.max_uses, expires_at: o.days ? new Date(Date.now() + o.days * 86400_000).toISOString() : null, created_by: userId })
-        if (error) throw error
-        return code
-      },
+    createMember: useMutation({
+      mutationFn: (v: { email: string; password: string; display_name: string; role: 'admin' | 'member' }) => callAdmin({ action: 'create', ...v }),
       onSuccess: refresh,
     }),
-    deleteInvite: useMutation({
-      mutationFn: async (code: string) => { const { error } = await supabase.from('invites').delete().eq('code', code); if (error) throw error },
-      onSuccess: refresh,
-    }),
+    resetPassword: useMutation({ mutationFn: (v: { user_id: string; password: string }) => callAdmin({ action: 'reset_password', ...v }) }),
     setActive: useMutation({
       mutationFn: async ({ id, active }: { id: string; active: boolean }) => { const { error } = await supabase.from('profiles').update({ active }).eq('id', id); if (error) throw error },
       onSuccess: refresh,

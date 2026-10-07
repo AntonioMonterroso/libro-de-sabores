@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { useAuth } from '../features/auth/AuthProvider'
-import { Avatar } from '../components/ui/Avatar'
+import { ProfileCard, PasswordCard } from '../features/auth/AccountSettings'
 import { Button, GhostButton } from '../components/ui/controls'
 import { Row, Section } from '../components/ui/layout'
 import { InstallGuide } from '../features/notifications/InstallGuide'
@@ -37,16 +37,11 @@ export function Settings() {
       <h1 className="mt-2 font-display text-5xl font-medium">Ajustes</h1>
 
       <div className="mt-8 grid gap-7">
-        <Section>
-          <div className="flex items-center gap-4 px-4 py-4">
-            <Avatar path={profile?.avatar_url} name={profile?.display_name} size={56} />
-            <div><p className="font-display text-2xl leading-tight">{profile?.display_name}</p><p className="text-sm text-cocoa-soft">{profile?.role === 'admin' ? 'Administrador' : 'Miembro de la familia'}</p></div>
-          </div>
-        </Section>
+        <ProfileCard />
 
         {profile?.role === 'admin' && (
           <Section>
-            <Link to="/admin" className="flex min-h-14 items-center justify-between px-4"><span>Administración: invitaciones y miembros</span><span className="text-cocoa-soft">›</span></Link>
+            <Link to="/admin" className="flex min-h-14 items-center justify-between px-4"><span>Administración: la familia y sus cuentas</span><span className="text-cocoa-soft">›</span></Link>
           </Section>
         )}
 
@@ -71,6 +66,8 @@ export function Settings() {
           {state === 'dev' && <p className="rounded-[22px] bg-pearl px-5 py-4 text-cocoa-soft">Los avisos solo funcionan en la versión publicada, no en desarrollo.</p>}
           {err && <p role="alert" className="px-4 text-sm text-[#9B3B3B]">{err}</p>}
         </section>
+
+        <PasswordCard />
 
         {!isStandalone() && <InstallGuide />}
 
