@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion, type PanInfo } from 'motion/react'
 import { ChevronLeft, ChevronRight, Check, Droplets, ListChecks, Minus, Plus, Thermometer, Timer as TimerIcon, X } from 'lucide-react'
-import { MusicButton, MusicSheet } from '../music/MusicSheet'
 import { ChefHat } from '../../components/brand/ChefHat'
 import { useWakeLock } from '../../hooks/useWakeLock'
 import { displayAmount, scaleAmount } from '../../lib/scale'
@@ -19,7 +18,6 @@ export function CookingMode({ r, servings }: { r: any; servings?: number }) {
   const [idx, setIdx] = useState(0)
   const [dir, setDir] = useState(1)
   const [sheet, setSheet] = useState(false)
-  const [music, setMusic] = useState(false)
   const [finished, setFinished] = useState(false)
   const [mins, setMins] = useState<Record<string, number>>({})
   useWakeLock(!finished)
@@ -133,7 +131,6 @@ export function CookingMode({ r, servings }: { r: any; servings?: number }) {
       </div>
 
       <footer className="flex items-center gap-3 border-t border-hairline/70 bg-ivory/95 px-4 pb-4 pt-3">
-        <MusicButton onClick={() => setMusic(true)} />
         <button type="button" onClick={() => setSheet(true)} className="flex min-h-14 items-center gap-2 rounded-2xl bg-pearl px-4 font-medium transition-transform duration-150 active:scale-[0.97]"><ListChecks size={20} /><span className="hidden sm:inline">Ingredientes</span></button>
         <button type="button" onClick={() => go(idx - 1)} disabled={idx === 0} aria-label="Paso anterior" className="grid size-14 place-items-center rounded-2xl bg-pearl transition-[opacity,transform] duration-150 active:scale-[0.97] disabled:opacity-35"><ChevronLeft size={24} /></button>
         <button type="button" onClick={() => go(idx + 1)} className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-sage-deep text-lg font-medium text-white transition-transform duration-150 active:scale-[0.97]">
@@ -141,7 +138,6 @@ export function CookingMode({ r, servings }: { r: any; servings?: number }) {
         </button>
       </footer>
 
-      <MusicSheet open={music} onClose={() => setMusic(false)} />
       <IngredientSheet r={r} factor={factor} open={sheet} onClose={() => setSheet(false)} />
 
       <AnimatePresence>
